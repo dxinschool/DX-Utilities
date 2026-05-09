@@ -1,0 +1,14 @@
+node_modules/
+.env
+.env.local
+*.env
+database.sqlite
+package-lock.json
+logs/
+*.log
+npm-debug.log*
+.DS_Store
+.idea/
+.vscode/
+Lavalink.jar
+plugins/*.jar
