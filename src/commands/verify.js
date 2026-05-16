@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionFlagsBits } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionFlagsBits, ModalBuilder, TextInputBuilder, TextInputStyle } = require('discord.js');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -21,22 +21,20 @@ module.exports = {
         if (sub === 'setup') {
             const channel = interaction.options.getChannel('channel');
             const role = interaction.options.getRole('role');
-            const title = 'Server Verification';
-            const description = 'Click the button below to verify you are human!';
 
             db.run(`INSERT OR REPLACE INTO verify_config (guild_id, channel_id, role_id, title, description) VALUES (?, ?, ?, ?, ?)`,
-                [interaction.guild.id, channel.id, role.id, title, description]);
+                [interaction.guild.id, channel.id, role.id, 'Server Verification', 'Click the button below to verify you are human!']);
 
             const embed = new EmbedBuilder()
-                .setTitle(title)
-                .setDescription(description)
+                .setTitle('Server Verification')
+                .setDescription('Click the button below to verify you are human!')
                 .setColor(0x00AE86)
                 .setTimestamp();
 
             const row = new ActionRowBuilder()
                 .addComponents(
                     new ButtonBuilder()
-                        .setCustomId('verify_button')
+                        .setCustomId('verify_open_modal')
                         .setLabel('Verify')
                         .setEmoji('✅')
                         .setStyle(ButtonStyle.Success)

@@ -1,4 +1,4 @@
-const { Events } = require('discord.js');
+const { Events, ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder } = require('discord.js');
 const nowplaying = require('../commands/nowplaying');
 const search = require('../commands/search');
 
@@ -24,9 +24,9 @@ module.exports = {
         }
         
         if (interaction.isButton()) {
-            // Handle verification button
-            if (interaction.customId === 'verify_button') {
-                return handleVerification(interaction);
+            // Handle verification button - opens modal
+            if (interaction.customId === 'verify_open_modal') {
+                return handleVerifyModal(interaction);
             }
             
             // Check if music system is available
@@ -118,6 +118,11 @@ module.exports = {
                 await interaction.reply({ content: 'Error processing action!', ephemeral: true });
             }
         }
+        
+        // Handle modal submission for verification
+        if (interaction.isModalSubmit() && interaction.customId === 'verify_modal_submit') {
+            return handleVerifySubmit(interaction);
+        }
     }
 };
 
@@ -162,39 +167,60 @@ async function handleSearchPlay(interaction, player) {
     }
 }
 
-async function handleVerification(interaction) {
+async function handleVerifyModal(interaction) {
     const db = interaction.client.db;
     const guildId = interaction.guild.id;
-    const userId = interaction.user.id;
     
-    // Check if already verified
-    db.get(`SELECT * FROM verified_users WHERE user_id = ? AND guild_id = ?`, [userId, guildId], async (err, row) => {
-        if (row) {
-            await interaction.reply({ content: 'You are already verified!', ephemeral: true });
+    db.get(`SELECT * FROM verify_config WHERE guild_id = ?`, [guildId], async (err, config) => {
+        if (!config) {
+            await interaction.reply({ content: 'Verification not set up on this server', ephemeral: true });
             return;
         }
         
-        // Get verify config
-        db.get(`SELECT * FROM verify_config WHERE guild_id = ?`, [guildId], async (err, config) => {
-            if (!config) {
-                await interaction.reply({ content: 'Verification not set up on this server', ephemeral: true });
-                return;
-            }
-            
-            const role = interaction.guild.roles.cache.get(config.role_id);
-            if (!role) {
-                await interaction.reply({ content: 'Verification role not found', ephemeral: true });
-                return;
-            }
-            
-            // Add role and mark as verified
-            const member = interaction.member;
-            await member.roles.add(role);
-            
-            db.run(`INSERT INTO verified_users (user_id, guild_id, verified_at) VALUES (?, ?, ?)`, 
-                [userId, guildId, Date.now()]);
-            
-            await interaction.reply({ content: `✅ Verified! You now have the ${role.name} role.`, ephemeral: true });
-        });
+        const modal = new ModalBuilder()
+            .setCustomId('verify_modal_submit')
+            .setTitle('Server Verification')
+            .addComponents(
+                new ActionRowBuilder()
+                    .addComponents(
+                        new TextInputBuilder()
+                            .setCustomId('verify_answer')
+                            .setLabel('Are you a human? (Type "yes")')
+                            .setStyle(TextInputStyle.Short)
+                            .setRequired(true)
+                            .setPlaceholder('yes')
+                    )
+            );
+        
+        await interaction.showModal(modal);
+    });
+}
+
+async function handleVerifySubmit(interaction) {
+    const db = interaction.client.db;
+    const guildId = interaction.guild.id;
+    const answer = interaction.fields.getTextInputValue('verify_answer').toLowerCase().trim();
+    
+    if (answer !== 'yes') {
+        await interaction.reply({ content: '❌ Please type "yes" to verify', ephemeral: true });
+        return;
+    }
+    
+    db.get(`SELECT * FROM verify_config WHERE guild_id = ?`, [guildId], async (err, config) => {
+        if (!config) {
+            await interaction.reply({ content: 'Verification not set up on this server', ephemeral: true });
+            return;
+        }
+        
+        const role = interaction.guild.roles.cache.get(config.role_id);
+        if (!role) {
+            await interaction.reply({ content: 'Verification role not found', ephemeral: true });
+            return;
+        }
+        
+        const member = interaction.member;
+        await member.roles.add(role);
+        
+        await interaction.reply({ content: `✅ Verified! You now have the ${role.name} role.`, ephemeral: true });
     });
 }
