@@ -32,6 +32,14 @@ db.serialize(() => {
     db.run("CREATE TABLE IF NOT EXISTS afk_status (" +
         "user_id TEXT PRIMARY KEY, guild_id TEXT, " +
         "reason TEXT, timestamp INTEGER)");
+    
+    db.run("CREATE TABLE IF NOT EXISTS verify_config (" +
+        "guild_id TEXT PRIMARY KEY, channel_id TEXT, " +
+        "role_id TEXT, title TEXT, description TEXT)");
+    
+    db.run("CREATE TABLE IF NOT EXISTS verified_users (" +
+        "user_id TEXT, guild_id TEXT, verified_at INTEGER, " +
+        "PRIMARY KEY (user_id, guild_id))");
 });
 
 const nodes = [

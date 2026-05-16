@@ -24,6 +24,11 @@ module.exports = {
         }
         
         if (interaction.isButton()) {
+            // Handle verification button
+            if (interaction.customId === 'verify_button') {
+                return handleVerification(interaction);
+            }
+            
             const player = interaction.client.kazagumo.players.get(interaction.guild.id);
             
             if (interaction.customId.startsWith('search_play_')) {
@@ -150,4 +155,41 @@ async function handleSearchPlay(interaction, player) {
         console.error('Search play error:', error);
         await interaction.reply({ content: 'Error playing track!', ephemeral: true });
     }
+}
+
+async function handleVerification(interaction) {
+    const db = interaction.client.db;
+    const guildId = interaction.guild.id;
+    const userId = interaction.user.id;
+    
+    // Check if already verified
+    db.get(`SELECT * FROM verified_users WHERE user_id = ? AND guild_id = ?`, [userId, guildId], async (err, row) => {
+        if (row) {
+            await interaction.reply({ content: 'You are already verified!', ephemeral: true });
+            return;
+        }
+        
+        // Get verify config
+        db.get(`SELECT * FROM verify_config WHERE guild_id = ?`, [guildId], async (err, config) => {
+            if (!config) {
+                await interaction.reply({ content: 'Verification not set up on this server', ephemeral: true });
+                return;
+            }
+            
+            const role = interaction.guild.roles.cache.get(config.role_id);
+            if (!role) {
+                await interaction.reply({ content: 'Verification role not found', ephemeral: true });
+                return;
+            }
+            
+            // Add role and mark as verified
+            const member = interaction.member;
+            await member.roles.add(role);
+            
+            db.run(`INSERT INTO verified_users (user_id, guild_id, verified_at) VALUES (?, ?, ?)`, 
+                [userId, guildId, Date.now()]);
+            
+            await interaction.reply({ content: `✅ Verified! You now have the ${role.name} role.`, ephemeral: true });
+        });
+    });
 }
