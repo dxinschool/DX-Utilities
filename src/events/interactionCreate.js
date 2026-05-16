@@ -29,6 +29,11 @@ module.exports = {
                 return handleVerification(interaction);
             }
             
+            // Check if music system is available
+            if (!interaction.client.lavalinkReady) {
+                return interaction.reply({ content: 'Music system is currently unavailable', ephemeral: true });
+            }
+            
             const player = interaction.client.kazagumo.players.get(interaction.guild.id);
             
             if (interaction.customId.startsWith('search_play_')) {

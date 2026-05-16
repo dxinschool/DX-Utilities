@@ -8,9 +8,7 @@ module.exports = {
             sub.setName('setup')
                 .setDescription('Set up verification channel and role')
                 .addChannelOption(opt => opt.setName('channel').setDescription('Channel for verification embed').setRequired(true))
-                .addRoleOption(opt => opt.setName('role').setDescription('Role to give after verification').setRequired(true))
-                .addStringOption(opt => opt.setName('title').setDescription('Embed title').setDefault('Server Verification'))
-                .addStringOption(opt => opt.setName('description').setDescription('Embed description').setDefault('Click the button below to verify you are human!')))
+                .addRoleOption(opt => opt.setName('role').setDescription('Role to give after verification').setRequired(true)))
         .addSubcommand(sub =>
             sub.setName('disable')
                 .setDescription('Disable verification'))
@@ -23,8 +21,8 @@ module.exports = {
         if (sub === 'setup') {
             const channel = interaction.options.getChannel('channel');
             const role = interaction.options.getRole('role');
-            const title = interaction.options.getString('title') || 'Server Verification';
-            const description = interaction.options.getString('description') || 'Click the button below to verify you are human!';
+            const title = 'Server Verification';
+            const description = 'Click the button below to verify you are human!';
 
             db.run(`INSERT OR REPLACE INTO verify_config (guild_id, channel_id, role_id, title, description) VALUES (?, ?, ?, ?, ?)`,
                 [interaction.guild.id, channel.id, role.id, title, description]);

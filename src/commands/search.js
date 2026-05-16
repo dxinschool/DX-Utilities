@@ -12,6 +12,10 @@ module.exports = {
                 .setDescription('Search query')
                 .setRequired(true)),
     async execute(interaction) {
+        if (!interaction.client.lavalinkReady) {
+            return interaction.reply({ content: 'Music system is currently unavailable', ephemeral: true });
+        }
+        
         await interaction.deferReply();
         
         const query = interaction.options.getString('query');

@@ -10,6 +10,10 @@ module.exports = {
                 .setDescription('Song name to search (defaults to now playing)')
                 .setRequired(false)),
     async execute(interaction) {
+        if (!interaction.client.lavalinkReady) {
+            return interaction.reply({ content: 'Music system is currently unavailable', ephemeral: true });
+        }
+        
         await interaction.deferReply();
         
         let track = null;

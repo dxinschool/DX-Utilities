@@ -5,6 +5,10 @@ module.exports = {
         .setName('queue')
         .setDescription('Display the current queue'),
     async execute(interaction) {
+        if (!interaction.client.lavalinkReady) {
+            return interaction.reply({ content: 'Music system is currently unavailable', ephemeral: true });
+        }
+        
         const player = interaction.client.kazagumo.players.get(interaction.guild.id);
         
         if (!player || (!player.current && player.queue.length === 0)) {

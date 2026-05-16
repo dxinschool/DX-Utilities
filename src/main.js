@@ -62,6 +62,7 @@ const kazagumo = new Kazagumo({
 client.db = db;
 client.kazagumo = kazagumo;
 client.axios = axios;
+client.lavalinkReady = false;
 
 const commandsPath = path.join(__dirname, 'commands');
 const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
@@ -199,10 +200,21 @@ kazagumo.on('playerEmpty', (player) => {
     player.destroy();
 });
 
-kazagumo.shoukaku.on('ready', (name) => console.log(`Lavalink ${name}: Ready!`));
-kazagumo.shoukaku.on('error', (name, error) => console.error(`Lavalink ${name}: Error`, error));
-kazagumo.shoukaku.on('close', (name, code, reason) => 
-    console.warn(`Lavalink ${name}: Closed, Code ${code}, Reason ${reason || 'No reason'}`));
+kazagumo.shoukaku.on('ready', (name) => {
+    client.lavalinkReady = true;
+    console.log(`Lavalink ${name}: Ready!`);
+});
+kazagumo.shoukaku.on('error', (name, error) => {
+    console.error(`Lavalink ${name}: Error`, error);
+});
+kazagumo.shoukaku.on('close', (name, code, reason) => {
+    client.lavalinkReady = false;
+    console.warn(`Lavalink ${name}: Closed, Code ${code}, Reason ${reason || 'No reason'}`);
+});
+kazagumo.shoukaku.on('disconnected', () => {
+    client.lavalinkReady = false;
+    console.warn('Lavalink disconnected');
+});
 
 client.on('ready', async () => {
     client.user.setActivity('Your Server', { type: 3 });

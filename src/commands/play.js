@@ -9,6 +9,10 @@ module.exports = {
                 .setDescription('Song name or URL')
                 .setRequired(true)),
     async execute(interaction) {
+        if (!interaction.client.lavalinkReady) {
+            return interaction.reply({ content: 'Music system is currently unavailable (Lavalink not connected)', ephemeral: true });
+        }
+        
         const query = interaction.options.getString('query');
         const member = interaction.member;
         
