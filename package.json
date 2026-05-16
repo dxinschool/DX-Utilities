@@ -1,18 +1,16 @@
 {
-  "name": "zork-bot",
+  "name": "dx-utilities",
   "version": "1.0.0",
   "main": "src/main.js",
   "scripts": {
-    "start": "node start.js",
     "start:bot": "node src/main.js",
     "start:lavalink": "java -jar Lavalink.jar",
-    "deploy": "node deploy-commands.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "deploy": "node deploy-commands.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
+  "description": "Discord bot with music, utilities, and fun commands",
   "dependencies": {
     "axios": "^1.16.0",
     "discord.js": "^14.26.4",

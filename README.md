@@ -1,132 +1,76 @@
-# Zork Discord Bot
+# DX Utilities
 
 A multipurpose Discord bot built with Node.js, discord.js, and Kazagumo (Lavalink).
 
 ## Features
 
-- **Music**: Play music from YouTube/Spotify via Lavalink with synced lyrics from lrclib
-- **Utility**: Reminders, polls, server/user info, AFK status
-- **Fun/Games**: Trivia, 8ball, memes, dice rolls, rock-paper-scissors
+- **Music**: Play music from YouTube/Spotify via Lavalink with lyrics from lrclib
+- **Utility**: Server info, user info, status, reminders
+- **Fun**: 8ball, dice rolls
 
 ## Prerequisites
 
-1. **Node.js** v18 or higher
-2. **Java** 11 or higher (for Lavalink)
+1. **Node.js** v18+
+2. **Java** 11+ (for Lavalink)
 3. **Discord Bot Token** (from [Discord Developer Portal](https://discord.com/developers/applications))
 
-## Setup Instructions
+## Setup
 
 ### 1. Create a Discord Bot
 
 1. Go to [Discord Developer Portal](https://discord.com/developers/applications)
 2. Create a new application
-3. Go to "Bot" section and create a bot
-4. Enable **MESSAGE CONTENT INTENT** and **GUILD VOICE STATES** under Privileged Gateway Intents
+3. Go to "Bot" and create a bot
+4. Enable **MESSAGE CONTENT INTENT** and **GUILD VOICE STATES**
 5. Copy the bot token
-6. Go to "OAuth2 > URL Generator", select `bot` and `applications.commands` scopes
-7. Select necessary permissions and copy the generated URL to invite bot to your server
 
-### 2. Set up Lavalink Server
+### 2. Download Lavalink
 
-1. Download the latest [Lavalink.jar](https://github.com/lavalink-devs/Lavalink/releases)
-2. Create a folder for Lavalink and place the jar file there
-3. Create an `application.yml` file in the same folder:
+```bash
+# Download Lavalink.jar (v4.2.2)
+curl -L -o Lavalink.jar https://github.com/lavalink-devs/Lavalink/releases/download/4.2.2/Lavalink.jar
 
-```yaml
-server:
-  port: 2333
-  address: 127.0.0.1
-
-lavalink:
-  server:
-    password: "youshallnotpass"
-    sources:
-      youtube: true
-      bandcamp: true
-      soundcloud: true
-      twitch: false
-      vimeo: false
-    bufferDurationMs: 400
-    frameBufferDurationMs: 5000
-    youtubePlaylistLoadLimit: 6
-    youtubeSearchEnabled: true
-    soundcloudSearchEnabled: true
-
-logging:
-  logback:
-    rollingfile:
-      enabled: false
+# Download YouTube plugin
+mkdir -p plugins
+curl -L -o plugins/youtube-plugin-1.18.1.jar https://github.com/lavalink-devs/youtube-source/releases/download/1.18.1/youtube-plugin-1.18.1.jar
 ```
 
-4. Run Lavalink: `java -jar Lavalink.jar`
+### 3. Configure
 
-### 3. Configure the Bot
+Create `.env` file:
+```
+DISCORD_TOKEN=your_bot_token
+LAVALINK_URL=localhost:2333
+LAVALINK_AUTH=youshallnotpass
+```
 
-1. Copy `.env.example` to `.env`:
-   ```
-   DISCORD_TOKEN=your_bot_token_here
-   CLIENT_ID=your_client_id_here
-   GUILD_ID=your_guild_id_here
-   LAVALINK_URL=localhost:2333
-   LAVALINK_AUTH=youshallnotpass
-   ```
-
-2. Get your Guild ID: Enable Developer Mode in Discord, right-click your server > Copy ID
-
-### 4. Install Dependencies and Run
+### 4. Run
 
 ```bash
 npm install
+npm run deploy
+npm run start:lavalink  # Terminal 1
+npm run start:bot       # Terminal 2
 ```
 
-Deploy slash commands:
-```bash
-node deploy-commands.js
-```
-
-Start the bot:
-```bash
-node src/main.js
-```
-
-## Project Structure
-
-```
-zork-bot/
-├── src/
-│   ├── commands/    # Slash command definitions
-│   ├── events/      # Client events (ready, interactionCreate)
-│   ├── utils/       # Database, music, helper functions
-│   └── main.js      # Entry point
-├── deploy-commands.js  # Slash command registration
-├── .env             # Bot configuration (create from .env.example)
-├── package.json
-└── README.md
-```
-
-## Available Commands
+## Commands
 
 ### Music
-- `/play <query>` - Play a song from YouTube/Spotify
-- `/pause` - Pause the current song
-- `/resume` - Resume the paused song
-- `/skip` - Skip the current song
-- `/queue` - Display the current queue
-- `/stop` - Stop playing and clear queue
-- `/leave` - Leave the voice channel
-- `/nowplaying` - Display currently playing song with synced lyrics
+- `/play` - Play a song
+- `/pause` / `/resume` - Pause/resume
+- `/skip` - Skip song
+- `/queue` - Show queue
+- `/stop` - Stop and clear queue
+- `/leave` - Leave voice channel
+- `/nowplaying` - Now playing with controls
+- `/lyrics` - Show lyrics
+- `/search` - Search YouTube
 
 ### Utility
-- `/serverinfo` - Display server information
-- (More utility commands to be added: /remind, /poll, /userinfo, /afk)
+- `/serverinfo` - Server info
+- `/userinfo` - User info
+- `/status` - Check AFK status
 
-### Fun/Games
+### Fun
 - `/roll [sides]` - Roll a dice
-- `/8ball <question>` - Ask the magic 8-ball
-- (More games to be added: /trivia, /meme, /rps)
-
-## Notes
-
-- Make sure Lavalink is running before starting the bot
-- The bot uses SQLite for persistent storage (reminders, AFK status)
-- Lyrics are fetched from [lrclib](https://lrclib.net) with synced timestamps
+- `/8ball <question>` - Magic 8-ball
