@@ -121,7 +121,12 @@ module.exports = {
         
         // Handle modal submission for verification
         if (interaction.isModalSubmit() && interaction.customId === 'verify_modal_submit') {
-            return handleVerifySubmit(interaction);
+            try {
+                return await handleVerifySubmit(interaction);
+            } catch (error) {
+                console.error('Verification submit error:', error);
+                return await interaction.reply({ content: '❌ Something went wrong, please try again.', ephemeral: true });
+            }
         }
     }
 };
@@ -207,6 +212,11 @@ async function handleVerifySubmit(interaction) {
     }
     
     db.get(`SELECT * FROM verify_config WHERE guild_id = ?`, [guildId], async (err, config) => {
+        if (err) {
+            console.error('Database error in verification:', err);
+            await interaction.reply({ content: '❌ Database error, please try again.', ephemeral: true });
+            return;
+        }
         if (!config) {
             await interaction.reply({ content: 'Verification not set up on this server', ephemeral: true });
             return;
@@ -218,9 +228,18 @@ async function handleVerifySubmit(interaction) {
             return;
         }
         
-        const member = interaction.member;
-        await member.roles.add(role);
+        const member = await interaction.guild.members.fetch(interaction.user.id);
         
-        await interaction.reply({ content: `✅ Verified! You now have the ${role.name} role.`, ephemeral: true });
+        try {
+            await member.roles.add(role);
+            await interaction.reply({ content: `✅ Verified! You now have the ${role.name} role.`, ephemeral: true });
+        } catch (roleError) {
+            console.error('Role add error:', roleError);
+            if (roleError.code === 50013) {
+                await interaction.reply({ content: '❌ Bot lacks permission to assign roles. Please check server permissions.', ephemeral: true });
+            } else {
+                await interaction.reply({ content: '❌ Failed to assign role. Please contact an admin.', ephemeral: true });
+            }
+        }
     });
 }

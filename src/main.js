@@ -55,6 +55,33 @@ const kazagumo = new Kazagumo({
     }
 }, new Connectors.DiscordJS(client), nodes);
 
+// Register Lavalink handlers immediately to avoid missing the 'ready' event
+kazagumo.shoukaku.on('ready', (name) => {
+    client.lavalinkReady = true;
+    console.log(`Lavalink ${name}: Ready!`);
+});
+kazagumo.shoukaku.on('error', (name, error) => {
+    console.error(`Lavalink ${name}: Error`, error);
+});
+kazagumo.shoukaku.on('close', (name, code, reason) => {
+    client.lavalinkReady = false;
+    console.warn(`Lavalink ${name}: Closed, Code ${code}, Reason ${reason || 'No reason'}`);
+});
+kazagumo.shoukaku.on('disconnected', () => {
+    client.lavalinkReady = false;
+    console.warn('Lavalink disconnected');
+});
+
+// Check if already connected (in case 'ready' fired before handler was attached)
+if (kazagumo.shoukaku.nodes.size > 0) {
+    for (const [, node] of kazagumo.shoukaku.nodes) {
+        if (node.state === 1) { // CONNECTED
+            client.lavalinkReady = true;
+            console.log(`Lavalink ${node.name}: Already connected`);
+        }
+    }
+}
+
 client.db = db;
 client.kazagumo = kazagumo;
 client.axios = axios;
@@ -194,22 +221,6 @@ kazagumo.on('playerEmpty', (player) => {
     const channel = client.channels.cache.get(player.textId);
     if (channel) channel.send({ content: 'Queue ended. Leaving voice channel.' });
     player.destroy();
-});
-
-kazagumo.shoukaku.on('ready', (name) => {
-    client.lavalinkReady = true;
-    console.log(`Lavalink ${name}: Ready!`);
-});
-kazagumo.shoukaku.on('error', (name, error) => {
-    console.error(`Lavalink ${name}: Error`, error);
-});
-kazagumo.shoukaku.on('close', (name, code, reason) => {
-    client.lavalinkReady = false;
-    console.warn(`Lavalink ${name}: Closed, Code ${code}, Reason ${reason || 'No reason'}`);
-});
-kazagumo.shoukaku.on('disconnected', () => {
-    client.lavalinkReady = false;
-    console.warn('Lavalink disconnected');
 });
 
 client.on('ready', async () => {
