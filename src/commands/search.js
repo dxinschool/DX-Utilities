@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
-const { getRandomColor } = require('../utils/helpers');
+const { getRandomColor, formatDuration } = require('../utils/helpers');
 
 const searchResults = new Map();
 
@@ -68,12 +68,5 @@ module.exports = {
         }
     }
 };
-
-function formatDuration(ms) {
-    const seconds = Math.floor(ms / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${minutes}:${secs.toString().padStart(2, '0')}`;
-}
 
 module.exports.searchResults = searchResults;

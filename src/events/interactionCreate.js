@@ -62,8 +62,8 @@ module.exports = {
                         player.destroy();
                         player.data.set('currentTrack', null);
                         player.data.set('embedColor', null);
-                        if (global.currentTracks) global.currentTracks.delete(player.guildId);
-                        if (global.previousTracks) global.previousTracks.delete(player.guildId);
+                        if (interaction.client.currentTracks) interaction.client.currentTracks.delete(player.guildId);
+                        if (interaction.client.previousTracks) interaction.client.previousTracks.delete(player.guildId);
                         break;
                     case 'music_volume_down':
                         player.setVolume(Math.max(0, player.volume - 10));
@@ -85,7 +85,7 @@ module.exports = {
                         }
                         break;
                     case 'music_previous':
-                        const history = global.previousTracks && global.previousTracks.get(interaction.guild.id);
+                        const history = interaction.client.previousTracks && interaction.client.previousTracks.get(interaction.guild.id);
                         if (!history || history.length === 0) {
                             await interaction.reply({ content: 'No previous track!', ephemeral: true });
                             return;
@@ -104,7 +104,7 @@ module.exports = {
                 }
                 
                 // Update the nowplaying embed with current data
-                const track = player.data.get('currentTrack') || (global.currentTracks && global.currentTracks.get(player.guildId));
+                const track = player.data.get('currentTrack') || (interaction.client.currentTracks && interaction.client.currentTracks.get(player.guildId));
                 if (track) {
                     const embed = nowplaying.createNowPlayingEmbed(player, track);
                     const buttons = nowplaying.createControlButtons(player);

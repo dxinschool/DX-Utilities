@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
-const { formatTime } = require('../utils/helpers');
+const { formatTime, getRandomColor } = require('../utils/helpers');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -31,7 +31,7 @@ module.exports = {
 };
 
 function createNowPlayingEmbed(player, trackParam) {
-    const track = trackParam || player.data.get('currentTrack') || (global.currentTracks && global.currentTracks.get(player.guildId));
+    const track = trackParam || player.data.get('currentTrack') || player.current;
     if (!track) {
         return new EmbedBuilder()
             .setTitle('Nothing Playing')
@@ -121,10 +121,6 @@ function createControlButtons(player) {
         );
     
     return [row1, row2];
-}
-
-function getRandomColor() {
-    return Math.floor(Math.random() * 0xFFFFFF);
 }
 
 module.exports.createNowPlayingEmbed = createNowPlayingEmbed;

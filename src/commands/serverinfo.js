@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const { getRandomColor } = require('../utils/helpers');
 
 const verificationLevels = ['None', 'Low', 'Medium', 'High', 'Very High'];

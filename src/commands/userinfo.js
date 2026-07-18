@@ -21,7 +21,7 @@ module.exports = {
         
         // Basic Info
         embed.addFields(
-            { name: '👤 Username', value: `${targetUser.username}#${targetUser.discriminator}`, inline: true },
+            { name: '👤 Username', value: targetUser.username, inline: true },
             { name: '🆔 User ID', value: targetUser.id, inline: true },
             { name: '🤖 Bot', value: targetUser.bot ? 'Yes' : 'No', inline: true }
         );

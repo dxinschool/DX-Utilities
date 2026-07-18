@@ -16,6 +16,8 @@
     "discord.js": "^14.26.4",
     "dotenv": "^17.4.2",
     "kazagumo": "^3.4.3",
+    "rss-parser": "^3.13.0",
+    "shoukaku": "^4.0.0",
     "sqlite3": "^6.0.1"
   }
 }
